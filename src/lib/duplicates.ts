@@ -69,7 +69,7 @@ export async function findDuplicates(c: Candidate): Promise<Duplicate[]> {
     result.set(p.id, {
       id: p.id,
       code: formatCode(p.id),
-      title: `${type}, ${p.district.name}, ${[p.street, p.house, p.apartment && `кв. ${p.apartment}`].filter(Boolean).join(", ")}`,
+      title: [type, p.district.name, p.street, p.house, p.apartment && `кв. ${p.apartment}`].filter(Boolean).join(", "),
       agent: p.agent.name,
       archived: p.archivedAt != null,
       reasons: [reason],

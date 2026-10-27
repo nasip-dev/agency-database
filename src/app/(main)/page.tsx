@@ -79,7 +79,7 @@ export default async function PropertiesPage({ searchParams }: PageProps<"/">) {
                     {p.typeInfo?.icon} {p.typeInfo?.label}
                     {p.rooms != null && `, ${formatRooms(p.rooms)}-комн.`}, {formatNumber(p.area)} {areaUnit(p.type)}
                   </p>
-                  <p className="text-sm text-zinc-600">📍 {p.district.name}, {p.address}</p>
+                  <p className="text-sm text-zinc-600">📍 {[p.district.name, p.address].filter(Boolean).join(", ")}</p>
                   <div className="mt-2 flex flex-wrap items-baseline gap-x-3 text-sm">
                     <span className="text-base font-semibold">{formatPrice(p.listPrice, p.currency)}</span>
                     <span className="text-zinc-500">на руки {formatPrice(p.ownerPrice, p.currency)}</span>

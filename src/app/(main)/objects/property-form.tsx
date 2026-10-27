@@ -16,6 +16,7 @@ import {
 } from "@/lib/constants";
 import { formatPhone, formatPrice } from "@/lib/format";
 import { saveProperty, type SaveResult } from "./actions";
+import { DistrictPicker } from "./district-picker";
 
 type Duplicates = NonNullable<SaveResult>["duplicates"];
 
@@ -23,10 +24,6 @@ export type PropertyFormValues = {
   type: string;
   rooms: number | null;
   districtId: number | null;
-  street: string;
-  house: string | null;
-  apartment: string | null;
-  landmark: string | null;
   area: number | null;
   floor: number | null;
   totalFloors: number | null;
@@ -63,8 +60,6 @@ export function PropertyForm({ id, initial, districts, agents }: Props) {
   const commission = parseAmount(listPrice) - parseAmount(ownerPrice);
   const commissionPct = parseAmount(listPrice) > 0 ? (commission / parseAmount(listPrice)) * 100 : 0;
 
-  const cities = [...new Set(districts.map((d) => d.city))];
-
   function submit(confirmDuplicates: boolean) {
     const fd = new FormData(formRef.current!);
     if (confirmDuplicates) fd.set("confirmDuplicates", "1");
@@ -86,21 +81,21 @@ export function PropertyForm({ id, initial, districts, agents }: Props) {
 
   const err = (name: string) => (errors[name] ? " input-error" : "");
 
+  function clearError(name: string) {
+    if (!errors[name]) return;
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
+  }
+
   return (
     <form
       ref={formRef}
       onSubmit={onSubmit}
       // Ошибка поля пропадает, как только его начали исправлять
-      onChange={(e) => {
-        const name = (e.target as unknown as HTMLInputElement).name;
-        if (errors[name]) {
-          setErrors((prev) => {
-            const next = { ...prev };
-            delete next[name];
-            return next;
-          });
-        }
-      }}
+      onChange={(e) => clearError((e.target as unknown as HTMLInputElement).name)}
       className="space-y-6"
       noValidate
     >
@@ -151,31 +146,14 @@ export function PropertyForm({ id, initial, districts, agents }: Props) {
       </Section>
 
       <Section title="📍 Адрес">
-        <Field label="Город и район" error={errors.districtId}>
-          <select name="districtId" defaultValue={initial.districtId ?? ""} className={"input" + err("districtId")}>
-            <option value="">Выберите район</option>
-            {cities.map((city) => (
-              <optgroup key={city} label={city}>
-                {districts.filter((d) => d.city === city).map((d) => (
-                  <option key={d.id} value={d.id}>{d.name}</option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-        </Field>
-        <Field label="Улица" error={errors.street}>
-          <input name="street" defaultValue={initial.street} placeholder="ул. Ахунбаева" className={"input" + err("street")} />
-        </Field>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Дом">
-            <input name="house" defaultValue={initial.house ?? ""} className="input" />
-          </Field>
-          <Field label="Квартира / офис">
-            <input name="apartment" defaultValue={initial.apartment ?? ""} className="input" />
-          </Field>
-        </div>
-        <Field label="Ориентир (необязательно)">
-          <input name="landmark" defaultValue={initial.landmark ?? ""} placeholder="напротив ТЦ…" className="input" />
+        <Field label="Район" error={errors.districtId}>
+          <DistrictPicker
+            name="districtId"
+            districts={districts}
+            defaultValue={initial.districtId}
+            invalid={!!errors.districtId}
+            onPick={() => clearError("districtId")}
+          />
         </Field>
       </Section>
 

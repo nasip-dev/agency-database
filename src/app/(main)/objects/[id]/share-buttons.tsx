@@ -32,7 +32,7 @@ export function ShareButtons({ clientText, fullText }: { clientText: string; ful
     <div className="card p-4 sm:p-5">
       <h2 className="mb-1 font-semibold">📤 Поделиться</h2>
       <p className="mb-3 text-sm text-zinc-500">
-        Для клиента — без хозяина, его телефона, цены «на руки», заметок и номера дома.{" "}
+        Для клиента — без хозяина, его телефона, цены «на руки» и заметок.{" "}
         <button type="button" onClick={() => setPreview(!preview)} className="text-indigo-700 hover:underline">
           {preview ? "Скрыть текст" : "Посмотреть текст"}
         </button>

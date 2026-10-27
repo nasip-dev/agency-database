@@ -56,11 +56,12 @@ export async function saveProperty(id: number | null, fd: FormData): Promise<Sav
     : null;
   if (!district) errors.districtId = "Выберите район";
 
-  const street = str(fd, "street");
-  if (!street) errors.street = "Укажите улицу";
-  const house = str(fd, "house") || null;
-  const apartment = str(fd, "apartment") || null;
-  const landmark = str(fd, "landmark") || null;
+  // В форме из адреса остался только район. Улица, дом и ориентир у старых
+  // объектов сохраняются как были, у новых — пустые.
+  const street = existing?.street ?? "";
+  const house = existing?.house ?? null;
+  const apartment = existing?.apartment ?? null;
+  const landmark = existing?.landmark ?? null;
 
   const area = toFloat(str(fd, "area"));
   if (!(area > 0) || area > 1_000_000) errors.area = "Укажите площадь";
@@ -115,15 +116,10 @@ export async function saveProperty(id: number | null, fd: FormData): Promise<Sav
 
   if (Object.keys(errors).length > 0) return { errors };
 
-  // Проверяем дубли, если объект новый или поменялся телефон / адрес.
+  // Проверяем дубли, если объект новый или поменялся телефон / район.
   // Агент видит предупреждение и может подтвердить сохранение.
   const contactsChanged =
-    !existing ||
-    existing.ownerPhone !== ownerPhone ||
-    existing.districtId !== districtId ||
-    existing.street !== street ||
-    existing.house !== house ||
-    existing.apartment !== apartment;
+    !existing || existing.ownerPhone !== ownerPhone || existing.districtId !== districtId;
   if (contactsChanged && fd.get("confirmDuplicates") !== "1") {
     const duplicates = await findDuplicates({ id, ownerPhone: ownerPhone!, districtId, street, house, apartment });
     if (duplicates.length > 0) return { errors: {}, duplicates };

@@ -41,7 +41,7 @@ export function clientText(p: ShareSource) {
 
   return [
     title,
-    `📍 ${p.district.city}, ${p.district.name}, ${p.street}${p.landmark ? ` (${p.landmark})` : ""}`,
+    `📍 ${[p.district.city, p.district.name, p.street].filter(Boolean).join(", ")}${p.landmark ? ` (${p.landmark})` : ""}`,
     `📐 Площадь: ${formatNumber(p.area)} ${areaUnit(p.type)}`,
     floorLine(p),
     `💰 Цена: ${formatPrice(p.listPrice, p.currency)}`,

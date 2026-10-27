@@ -10,8 +10,7 @@ export default async function NewPropertyPage() {
   const { districts, agents } = await getFormOptions(user);
 
   const initial: PropertyFormValues = {
-    type: "APARTMENT", rooms: null, districtId: null, street: "", house: null, apartment: null,
-    landmark: null, area: null, floor: null, totalFloors: null, listPrice: null, ownerPrice: null,
+    type: "APARTMENT", rooms: null, districtId: null, area: null, floor: null, totalFloors: null, listPrice: null, ownerPrice: null,
     currency: "USD", ownerName: "", ownerPhone: "", notes: null, status: "ACTIVE", agentId: user.id,
     bargain: false, docsReady: false, urgent: false, furnished: false, renovated: false,
   };

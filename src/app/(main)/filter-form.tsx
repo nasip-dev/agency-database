@@ -45,7 +45,7 @@ export function FilterForm({ filters: f, districts, agents }: Props) {
           name="q"
           type="search"
           defaultValue={f.q}
-          placeholder="🔎 ID (NS-000125), улица, хозяин, телефон…"
+          placeholder="🔎 ID (NS-0125), район, хозяин, телефон…"
           className="input flex-1"
         />
         <button className="btn-primary">Найти</button>

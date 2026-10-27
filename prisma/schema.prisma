@@ -31,7 +31,7 @@ model District {
 }
 
 model Property {
-  /// Из id получается код объекта NS-000125. Autoincrement не переиспользует номера.
+  /// Из id получается код объекта NS-0125. Autoincrement не переиспользует номера.
   id           Int            @id @default(autoincrement())
   /// APARTMENT | HOUSE | LAND | COMMERCIAL | OTHER
   type         String

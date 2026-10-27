@@ -58,7 +58,7 @@ export default async function PropertyPage({ params }: PageProps<"/objects/[id]"
               {p.rooms != null && `, ${formatRooms(p.rooms)}-комн.`}
               {`, ${formatNumber(p.area)} ${areaUnit(p.type)}`}
             </h1>
-            <p className="text-zinc-600">📍 {p.district.city}, {p.district.name}, {address}</p>
+            <p className="text-zinc-600">📍 {[p.district.city, p.district.name, address].filter(Boolean).join(", ")}</p>
           </div>
           <StatusBadge status={p.status} />
         </div>
@@ -84,7 +84,7 @@ export default async function PropertyPage({ params }: PageProps<"/objects/[id]"
             <Row label="🏢 Этаж">{p.floor ?? "—"} из {p.totalFloors ?? "—"}</Row>
           )}
           <Row label="📍 Адрес">
-            {p.district.city}, {p.district.name}, {address}
+            {[p.district.city, p.district.name, address].filter(Boolean).join(", ")}
             {p.landmark && <span className="block text-sm text-zinc-500">Ориентир: {p.landmark}</span>}
           </Row>
           <Row label="👤 Хозяин">{p.ownerName}</Row>

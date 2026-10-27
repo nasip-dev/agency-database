@@ -2,12 +2,12 @@ import { CURRENCIES, type Currency } from "./constants";
 
 const CODE_PREFIX = "NS-";
 
-/** 125 → NS-000125 */
+/** 125 → NS-0125; после 9999 номер просто становится длиннее */
 export function formatCode(id: number) {
-  return CODE_PREFIX + String(id).padStart(6, "0");
+  return CODE_PREFIX + String(id).padStart(4, "0");
 }
 
-/** «NS-000125», «ns125», «000125», «125» → 125 */
+/** «NS-0125», «ns125», «0125», «125» → 125 */
 export function parseCode(input: string): number | null {
   const m = input.trim().match(/^(?:ns-?)?0*(\d{1,9})$/i);
   return m ? Number(m[1]) : null;
