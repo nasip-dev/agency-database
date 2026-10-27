@@ -22,7 +22,7 @@ export function NewAgentForm() {
       </label>
       <label>
         <span className="label">Пароль</span>
-        <input name="password" required minLength={6} autoComplete="new-password" className="input" />
+        <input name="password" required autoComplete="new-password" placeholder="минимум 6 символов" className="input" />
       </label>
       <label>
         <span className="label">Роль</span>

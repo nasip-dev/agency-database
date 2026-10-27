@@ -14,6 +14,7 @@ export async function changePassword(_prev: FormState, fd: FormData): Promise<Fo
   const next = String(fd.get("next") ?? "");
   const repeat = String(fd.get("repeat") ?? "");
 
+  if (!current) return { error: "Введите текущий пароль" };
   const record = await db.user.findUniqueOrThrow({ where: { id: user.id } });
   if (!(await bcrypt.compare(current, record.passwordHash))) return { error: "Текущий пароль неверный" };
   if (next.length < 6) return { error: "Новый пароль — минимум 6 символов" };
