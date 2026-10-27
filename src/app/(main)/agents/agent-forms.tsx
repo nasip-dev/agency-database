@@ -43,20 +43,67 @@ export function NewAgentForm() {
 export function AgentActions({ id, active, isSelf }: { id: number; active: boolean; isSelf: boolean }) {
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState<FormState>({});
+  // Поле ввода прямо в строке: окно prompt() многие браузеры молча блокируют
+  const [editing, setEditing] = useState(false);
+  const [password, setPassword] = useState("");
+
+  function save() {
+    startTransition(async () => {
+      const result = await resetPassword(id, password);
+      setMessage(result);
+      if (result.ok) {
+        setEditing(false);
+        setPassword("");
+      }
+    });
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <button
-        disabled={pending}
-        onClick={() => {
-          const password = prompt("Новый пароль (минимум 6 символов):");
-          if (password) startTransition(async () => setMessage(await resetPassword(id, password)));
-        }}
-        className="btn"
-      >
-        Сменить пароль
-      </button>
-      {!isSelf && (
+      {editing ? (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            save();
+          }}
+          className="flex flex-wrap items-center gap-2"
+        >
+          <input
+            autoFocus
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Новый пароль, от 6 символов"
+            autoComplete="new-password"
+            className="input w-56"
+          />
+          <button disabled={pending} className="btn-primary">
+            {pending ? "Сохраняю…" : "Сохранить"}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setEditing(false);
+              setPassword("");
+              setMessage({});
+            }}
+            className="btn"
+          >
+            Отмена
+          </button>
+        </form>
+      ) : (
+        <button
+          disabled={pending}
+          onClick={() => {
+            setMessage({});
+            setEditing(true);
+          }}
+          className="btn"
+        >
+          Сменить пароль
+        </button>
+      )}
+      {!isSelf && !editing && (
         <button
           disabled={pending}
           onClick={() => startTransition(() => setAgentActive(id, !active))}
