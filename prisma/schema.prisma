@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           Int            @id @default(autoincrement())
+  name         String
+  login        String         @unique
+  passwordHash String
+  phone        String?
+  /// ADMIN | AGENT
+  role         String         @default("AGENT")
+  active       Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  properties   Property[]
+  priceChanges PriceHistory[]
+}
+
+model District {
+  id         Int        @id @default(autoincrement())
+  city       String
+  name       String
+  properties Property[]
+
+  @@unique([city, name])
+}
+
+model Property {
+  /// Из id получается код объекта NS-000125. Autoincrement не переиспользует номера.
+  id           Int            @id @default(autoincrement())
+  /// APARTMENT | HOUSE | LAND | COMMERCIAL | OTHER
+  type         String
+  /// 1..4, 5 = «5+ комнат»; null для участка
+  rooms        Int?
+  districtId   Int
+  district     District       @relation(fields: [districtId], references: [id])
+  street       String
+  house        String?
+  apartment    String?
+  landmark     String?
+  /// м², для участка — сотки
+  area         Float
+  floor        Int?
+  totalFloors  Int?
+  listPrice    Int
+  ownerPrice   Int
+  /// USD | KGS
+  currency     String         @default("USD")
+  ownerName    String
+  /// Только цифры с кодом страны: 996555123456
+  ownerPhone   String
+  notes        String?
+  bargain      Boolean        @default(false)
+  docsReady    Boolean        @default(false)
+  urgent       Boolean        @default(false)
+  furnished    Boolean        @default(false)
+  renovated    Boolean        @default(false)
+  /// ACTIVE | DEPOSIT | SOLD | WITHDRAWN
+  status       String         @default("ACTIVE")
+  agentId      Int
+  agent        User           @relation(fields: [agentId], references: [id])
+  /// Текст для поиска в нижнем регистре (адрес, хозяин, телефон, заметки)
+  searchText   String         @default("")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  archivedAt   DateTime?
+  photos       Photo[]
+  priceHistory PriceHistory[]
+
+  @@index([type])
+  @@index([districtId])
+  @@index([agentId])
+  @@index([status])
+}
+
+model Photo {
+  id         Int      @id @default(autoincrement())
+  propertyId Int
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  /// Имя файла без расширения; на диске лежат <file>.webp и <file>_thumb.webp
+  file       String   @unique
+  /// Порядок показа, первое фото — главное
+  position   Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([propertyId, position])
+}
+
+/// Каждая запись — цены, действовавшие с момента createdAt
+model PriceHistory {
+  id          Int      @id @default(autoincrement())
+  propertyId  Int
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  listPrice   Int
+  ownerPrice  Int
+  currency    String
+  changedById Int?
+  changedBy   User?    @relation(fields: [changedById], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([propertyId, createdAt])
+}
