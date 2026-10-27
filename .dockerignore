@@ -1,0 +1,12 @@
+.git
+.next
+.claude
+node_modules
+src/generated
+uploads
+*.db
+*.db-journal
+.env*
+!.env.example
+*.tsbuildinfo
+next-env.d.ts

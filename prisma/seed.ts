@@ -16,13 +16,15 @@ const BISHKEK_DISTRICTS = [
   "мкр. 10", "мкр. 11", "мкр. 12",
 ];
 
+// Запускается при каждом старте сервера, поэтому ничего не перезаписывает:
+// руководитель создаётся, только если его ещё нет, а районы — только в пустую базу
+// (иначе удалённые руководителем районы появлялись бы снова).
 async function main() {
-  const login = process.env.ADMIN_LOGIN ?? "admin";
-  const password = process.env.ADMIN_PASSWORD;
-  if (!password) throw new Error("Укажите ADMIN_PASSWORD в .env");
-
-  const existing = await db.user.findUnique({ where: { login } });
-  if (!existing) {
+  const hasAdmin = await db.user.count({ where: { role: "ADMIN" } });
+  if (!hasAdmin) {
+    const login = process.env.ADMIN_LOGIN ?? "admin";
+    const password = process.env.ADMIN_PASSWORD;
+    if (!password) throw new Error("Укажите ADMIN_PASSWORD в .env");
     await db.user.create({
       data: {
         login,
@@ -34,14 +36,13 @@ async function main() {
     console.log(`Создан руководитель: ${login}`);
   }
 
-  for (const name of BISHKEK_DISTRICTS) {
-    await db.district.upsert({
-      where: { city_name: { city: "Бишкек", name } },
-      update: {},
-      create: { city: "Бишкек", name },
+  const hasDistricts = await db.district.count();
+  if (!hasDistricts) {
+    await db.district.createMany({
+      data: BISHKEK_DISTRICTS.map((name) => ({ city: "Бишкек", name })),
     });
+    console.log(`Добавлены районы Бишкека: ${BISHKEK_DISTRICTS.length}`);
   }
-  console.log(`Районы Бишкека: ${BISHKEK_DISTRICTS.length}`);
 }
 
 main().finally(() => db.$disconnect());

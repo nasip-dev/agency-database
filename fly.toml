@@ -1,0 +1,30 @@
+# Настройки Fly.io. Секреты (SESSION_SECRET, ADMIN_PASSWORD) задаются в панели Fly,
+# а не здесь.
+app = "agency-database-5kxjzw"
+primary_region = "ams"
+swap_size_mb = 512
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  DATABASE_URL = "file:/data/prod.db"
+  UPLOAD_DIR = "/data/uploads"
+
+# Постоянный диск: база и фото. Машина должна быть одна — SQLite не делится между машинами.
+[[mounts]]
+  source = "data"
+  destination = "/data"
+  initial_size = "1gb"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # Без посетителей машина засыпает (платим меньше), первый вход после паузы — пара секунд
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
